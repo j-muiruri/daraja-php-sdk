@@ -2,7 +2,6 @@
     "name": "j-muiruri/daraja-php-sdk",
     "description": "Enterprise-grade PHP SDK for the Safaricom Daraja M-Pesa API. Full coverage: OAuth, STK Push, C2B, B2C, B2B, Transaction Status, Account Balance, Reversal, Dynamic QR, Tax Remittance, and Bill Manager. Includes a Laravel integration layer with auto-discovery, events, middleware, and webhook routing.",
     "type": "library",
-    "version": "1.0.0",
     "keywords": [
         "mpesa", "daraja", "safaricom", "kenya", "payments", "sdk",
         "laravel", "stk-push", "c2b", "b2c", "b2b", "lipa-na-mpesa"
