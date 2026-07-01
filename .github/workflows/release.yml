@@ -3,7 +3,7 @@ name: Release
 on:
   push:
     tags:
-      - 'v*.*.*'
+      - "v*.*.*"
 
 jobs:
   release:
@@ -28,8 +28,8 @@ jobs:
       - name: Install dependencies
         run: composer install --prefer-dist --no-interaction --no-dev --optimize-autoloader
 
-      - name: Run tests
-        run: composer test
+      - name: Run CI Suite
+        run: composer run ci
 
       - name: Extract release notes from CHANGELOG
         id: changelog

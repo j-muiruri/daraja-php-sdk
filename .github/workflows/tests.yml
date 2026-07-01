@@ -8,7 +8,7 @@ on:
 
 jobs:
   tests:
-    name: PHP ${{ matrix.php }} — ${{ matrix.stability }}
+    name: PHP ${{ matrix.php }}
     runs-on: ubuntu-latest
 
     strategy:
@@ -42,7 +42,7 @@ jobs:
             ${{ runner.os }}-php-${{ matrix.php }}-
 
       - name: Install dependencies
-        run: composer install --prefer-dist --no-interaction --no-progress --${{ matrix.stability }}
+        run: composer install --prefer-dist --no-interaction --no-progress
 
       - name: PHP lint
         run: find src tests -name "*.php" | xargs -I{} php -l {}
