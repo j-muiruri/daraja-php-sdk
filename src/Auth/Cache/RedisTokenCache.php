@@ -26,7 +26,9 @@ use Daraja\Auth\AccessToken;
  */
 final class RedisTokenCache implements TokenCacheInterface
 {
-    /** @param \Redis|\Predis\Client<string, mixed> $redis */
+    /**
+     *@param \Illuminate\Support\Facades\Redis|\Predis\Client<string, mixed> $redis 
+     */
     public function __construct(
         private readonly mixed  $redis,
         private readonly string $keyPrefix = 'daraja:token',
@@ -47,11 +49,7 @@ final class RedisTokenCache implements TokenCacheInterface
             // Reconstruct with remaining TTL (Redis handles expiry; we add a 10s buffer)
             $ttl = max(0, (int) $this->redis->ttl($this->key()));
 
-            if ($ttl <= 10) {
-                return null;
-            }
-
-            return new AccessToken($data['token'], $ttl + 60); // +60 because token subtracts 60 internally
+            return $ttl > 10 ? new AccessToken($data['token'], $ttl + 60) : null; // +60 because token subtracts 60 internally
         } catch (\Throwable) {
             return null;
         }
