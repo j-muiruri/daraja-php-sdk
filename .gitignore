@@ -1,0 +1,42 @@
+
+# Composer dependencies
+/vendor/
+composer.phar
+composer.lock
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Log files
+*.log
+/logs/
+
+# Cache and temporary files
+/cache/
+/tmp/
+*.cache
+
+# Build and distribution files
+/build/
+/dist/
+
+# Testing
+/phpunit.xml
+/.phpunit.result.cache
+/coverage/
+.phpunit.cache/
+.phpstan/
+
+# Certs
+/certs/
+*.cer
