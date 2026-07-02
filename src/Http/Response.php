@@ -7,18 +7,21 @@ namespace Daraja\Http;
 /**
  * Wraps a raw Daraja API response for convenient access.
  *
- * @template-covariant TData of array
+ * @template TData of array<string, mixed>
  */
 final class Response
 {
-    /** @param array<string, mixed> $data */
+    /**
+     * @param TData $data
+     */
     public function __construct(
         private readonly array $data,
         private readonly int   $statusCode,
     ) {}
 
     /**
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed> $data
+     * @return self<array<string, mixed>>
      */
     public static function fromArray(array $data, int $statusCode = 200): self
     {
@@ -35,7 +38,9 @@ final class Response
         return $this->statusCode;
     }
 
-    /** @return array<string, mixed> */
+    /**
+     * @return TData
+     */
     public function data(): array
     {
         return $this->data;
