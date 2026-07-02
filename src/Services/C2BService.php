@@ -46,6 +46,7 @@ final class C2BService
      * @param  string $responseType    'Completed' (skip validation) or 'Cancelled' (reject if no validation response)
      * @param  string|null $shortcode  Override shortcode (default: config shortcode)
      * @throws ValidationException
+     * @return Response
      */
     public function registerUrls(
         string  $confirmationUrl,
@@ -80,6 +81,7 @@ final class C2BService
      * @param  string             $commandId     'CustomerPayBillOnline' or 'CustomerBuyGoodsOnline'
      * @param  string|null        $shortcode     Override shortcode
      * @throws ValidationException
+     * @return Response
      */
     public function simulate(
         string|PhoneNumber $phone,

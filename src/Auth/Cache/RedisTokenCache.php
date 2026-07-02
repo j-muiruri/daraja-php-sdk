@@ -47,7 +47,7 @@ final class RedisTokenCache implements TokenCacheInterface
             $data = json_decode((string) $raw, true, 512, JSON_THROW_ON_ERROR);
 
             // Reconstruct with remaining TTL (Redis handles expiry; we add a 10s buffer)
-            $ttl = max(0, (int) $this->redis->ttl($this->key()));
+            $ttl = max(0, $this->redis->ttl($this->key()));
 
             return $ttl > 10 ? new AccessToken($data['token'], $ttl + 60) : null; // +60 because token subtracts 60 internally
         } catch (\Throwable) {

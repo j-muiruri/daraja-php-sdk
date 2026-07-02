@@ -48,6 +48,7 @@ final class B2BService
      * @param  string $accountReference    Account number at the supplier's paybill
      * @param  string $remarks             Transaction remarks
      * @throws ValidationException
+     * @return Response
      */
     public function payBill(
         string $receiverShortcode,
@@ -76,6 +77,7 @@ final class B2BService
      * @param  int    $amount      Amount in KES
      * @param  string $remarks     Transaction remarks
      * @throws ValidationException
+     * @return Response
      */
     public function buyGoods(
         string $tillNumber,
@@ -100,6 +102,7 @@ final class B2BService
      * Low-level B2B payment.
      *
      * @throws ValidationException
+     * @return Response
      */
     public function pay(
         string         $receiverShortcode,

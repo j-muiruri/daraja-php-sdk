@@ -92,7 +92,7 @@ class AccessTokenManager
 
             return new AccessToken(
                 token: $body['access_token'],
-                expiresIn: (int) ($body['expires_in'] ?? 3600),
+                expiresIn: (int) ($body['expires_in']),
             );
         } catch (GuzzleException $e) {
             throw new AuthenticationException(

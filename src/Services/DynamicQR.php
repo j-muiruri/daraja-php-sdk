@@ -40,6 +40,7 @@ final class DynamicQR
      * @param  int         $size           QR image size in pixels (300–1000, default 400)
      * @param  string|null $creditPartyId  Till number or Paybill shortcode (default: config shortcode)
      * @throws ValidationException
+     * @return Response
      */
     public function generate(
         string     $merchantName,
@@ -65,7 +66,7 @@ final class DynamicQR
 
     /**
      * Extract the Base64-encoded QR image string from the response.
-     *
+     *@param \Daraja\Http\Response $response
      * Usage:
      *   $response = $client->qr()->generate(...);
      *   $base64   = $client->qr()->extractImage($response);
@@ -79,26 +80,26 @@ final class DynamicQR
     /**
      * Decode and save the QR image to a file.
      *
-     * @param  Response $response     The response from generate()
+     * @param  \Daraja\Http\Response $response     The response from generate()
      * @param  string   $filepath     Absolute path to save the PNG file
-     * @throws \RuntimeException
+     * @throws QrImageException
      */
-    public function saveImage(Response $response, string $filepath): void
+    public function saveImage(\Daraja\Http\Response $response, string $filepath): void
     {
         $base64 = $this->extractImage($response);
 
         if (empty($base64)) {
-            throw new \RuntimeException('No QR image data in response');
+            throw new QrImageException('No QR image data in response');
         }
 
         $decoded = base64_decode($base64, strict: true);
 
         if ($decoded === false) {
-            throw new \RuntimeException('Failed to decode Base64 QR image data');
+            throw new QrImageException('Failed to decode Base64 QR image data');
         }
 
         if (file_put_contents($filepath, $decoded) === false) {
-            throw new \RuntimeException("Failed to write QR image to: {$filepath}");
+            throw new QrImageException("Failed to write QR image to: {$filepath}");
         }
     }
 
@@ -136,4 +137,8 @@ final class DynamicQR
             throw new ValidationException($errors);
         }
     }
+}
+
+final class QrImageException extends \RuntimeException
+{
 }

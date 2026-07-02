@@ -40,6 +40,7 @@ final class STKPush
      * @param  string             $callbackUrl     HTTPS URL to receive the result callback
      * @param  string|null        $shortcode       Override business shortcode (default: config shortcode)
      * @throws ValidationException
+     * @return Response
      */
     public function push(
         string|PhoneNumber $phone,
@@ -82,6 +83,7 @@ final class STKPush
      * @param  string             $till     Buy Goods till number
      * @param  string             $callbackUrl HTTPS callback URL
      * @throws ValidationException
+     * @return Response
      */
     public function pushBuyGoods(
         string|PhoneNumber $phone,
@@ -121,6 +123,7 @@ final class STKPush
      *
      * @param  string      $checkoutRequestId The CheckoutRequestID from the push() response
      * @param  string|null $shortcode         Override shortcode
+     * @return Response
      */
     public function query(string $checkoutRequestId, ?string $shortcode = null): Response
     {

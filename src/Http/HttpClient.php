@@ -33,6 +33,7 @@ final class HttpClient
      * @param  array<string, mixed> $payload
      * @throws ApiException
      * @throws AuthenticationException
+     * @return Response
      */
     public function post(string $endpoint, array $payload): Response
     {
@@ -43,6 +44,7 @@ final class HttpClient
      * @param  array<string, string> $query
      * @throws ApiException
      * @throws AuthenticationException
+     * @return Response
      */
     public function get(string $endpoint, array $query = []): Response
     {
@@ -54,6 +56,7 @@ final class HttpClient
      * @param  array<string, string> $query
      * @throws ApiException
      * @throws AuthenticationException
+     * @return Response
      */
     private function send(
         string $method,

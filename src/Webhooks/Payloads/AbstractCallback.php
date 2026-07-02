@@ -37,7 +37,7 @@ abstract class AbstractCallback implements Callback
     protected function extractItem(array $items, string $name, mixed $default = null): mixed
     {
         foreach ($items as $item) {
-            if (($item['Name'] ?? '') === $name) {
+            if (($item['Name']) === $name) {
                 return $item['Value'] ?? $default;
             }
         }
@@ -54,7 +54,7 @@ abstract class AbstractCallback implements Callback
     protected function extractParam(array $params, string $key, mixed $default = null): mixed
     {
         foreach ($params as $param) {
-            if (($param['Key'] ?? '') === $key) {
+            if (($param['Key']) === $key) {
                 return $param['Value'] ?? $default;
             }
         }

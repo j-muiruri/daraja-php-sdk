@@ -51,6 +51,7 @@ final class Reversal
      * @param  string          $resultUrl        Override result URL
      * @param  string          $timeoutUrl       Override timeout URL
      * @throws ValidationException
+     * @return Response
      */
     public function reverse(
         string         $transactionId,
@@ -76,7 +77,7 @@ final class Reversal
             'TransactionID'          => $transactionId,
             'Amount'                 => $amount,
             'ReceiverParty'          => $receiverShortcode,
-            'RecieverIdentifierType' => $receiverIdentifier->value,
+            'ReceiverIdentifierType' => $receiverIdentifier->value,
             'QueueTimeOutURL'        => $timeoutUrl,
             'ResultURL'              => $resultUrl,
             'Remarks'                => substr($remarks, 0, 100),

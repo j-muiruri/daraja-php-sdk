@@ -46,6 +46,7 @@ final class AccountBalance
      * @param  string         $resultUrl       Override result URL
      * @param  string         $timeoutUrl      Override timeout URL
      * @throws ValidationException
+     * @return Response
      */
     public function query(
         IdentifierType $identifierType = IdentifierType::Shortcode,

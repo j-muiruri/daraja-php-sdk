@@ -51,6 +51,7 @@ final class TaxRemittance
      * @param  string $resultUrl        Override result URL
      * @param  string $timeoutUrl       Override timeout URL
      * @throws ValidationException
+     * @return Response
      */
     public function remit(
         int    $amount,
@@ -70,7 +71,7 @@ final class TaxRemittance
             'SecurityCredential'     => $this->config->securityCredential,
             'CommandID'              => CommandId::PayTaxToKRA->value,
             'SenderIdentifierType'   => IdentifierType::Shortcode->value,
-            'RecieverIdentifierType' => IdentifierType::Shortcode->value,
+            'ReceiverIdentifierType' => IdentifierType::Shortcode->value,
             'Amount'                 => $amount,
             'PartyA'                 => $this->config->shortcode,
             'PartyB'                 => self::KRA_SHORTCODE,

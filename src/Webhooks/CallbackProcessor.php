@@ -312,7 +312,7 @@ final class CallbackProcessor
     private function dispatch(array $handlers, Callback $payload): void
     {
         foreach ($handlers as $handler) {
-            $handler($payload);  // @phpstan-ignore-line
+            $handler($payload);
         }
     }
 }

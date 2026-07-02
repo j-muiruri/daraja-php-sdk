@@ -60,7 +60,7 @@ final class C2BConfirmation extends AbstractCallback
         }
 
         $this->transactionType   = (string) ($raw['TransactionType']   ?? '');
-        $this->transactionId     = (string) ($raw['TransID']           ?? '');
+        $this->transactionId     = (string) ($raw['TransID']);
         $this->businessShortCode = (string) ($raw['BusinessShortCode'] ?? '');
         $this->billRefNumber     = (string) ($raw['BillRefNumber']     ?? '');
         $this->invoiceNumber     = (string) ($raw['InvoiceNumber']     ?? '');

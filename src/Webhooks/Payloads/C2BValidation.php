@@ -67,7 +67,7 @@ final class C2BValidation extends AbstractCallback
         }
 
         $this->transactionType   = (string) ($raw['TransactionType']   ?? '');
-        $this->transactionId     = (string) ($raw['TransID']           ?? '');
+        $this->transactionId     = (string) ($raw['TransID']        );
         $this->businessShortCode = (string) ($raw['BusinessShortCode'] ?? '');
         $this->billRefNumber     = (string) ($raw['BillRefNumber']     ?? '');
         $this->amount            = (float)  ($raw['TransAmount']       ?? 0);

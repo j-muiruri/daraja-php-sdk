@@ -50,6 +50,7 @@ final class TransactionStatus
      * @param  string          $resultUrl        Override result URL
      * @param  string          $timeoutUrl       Override timeout URL
      * @throws ValidationException
+     * @return Response
      */
     public function query(
         string         $transactionId,

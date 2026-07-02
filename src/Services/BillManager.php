@@ -62,6 +62,7 @@ final class BillManager
      * @param  string $logo            Base64-encoded PNG/JPG logo image (optional)
      * @param  string|null $shortcode  Override shortcode
      * @throws ValidationException
+     * @return Response
      */
     public function optIn(
         string  $email,
@@ -98,6 +99,7 @@ final class BillManager
      * The customer receives an SMS notification and can pay directly from it.
      *
      * @throws ValidationException
+     * @return Response
      */
     public function sendInvoice(Invoice $invoice): Response
     {
@@ -109,6 +111,7 @@ final class BillManager
      *
      * @param  list<Invoice> $invoices
      * @throws ValidationException
+     * @return Response
      */
     public function sendBulk(array $invoices): Response
     {
@@ -130,6 +133,7 @@ final class BillManager
      *
      * @param  string $externalReference  The externalReference used when sending the invoice
      * @throws ValidationException
+     * @return Response
      */
     public function cancelInvoice(string $externalReference): Response
     {
@@ -147,6 +151,7 @@ final class BillManager
      *
      * @param  list<string> $externalReferences  Array of externalReference values
      * @throws ValidationException
+     * @return Response
      */
     public function cancelBulk(array $externalReferences): Response
     {

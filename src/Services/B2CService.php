@@ -47,6 +47,7 @@ final class B2CService
      * @param  string             $remarks     Free text remarks (max 100 chars)
      * @param  string             $occasion    Optional occasion note (max 100 chars)
      * @throws ValidationException
+     * @return Response
      */
     public function sendSalary(
         string|PhoneNumber $phone,
@@ -71,6 +72,7 @@ final class B2CService
      * Send a general business payment (e.g. bank-to-mobile transfer).
      *
      * @throws ValidationException
+     * @return Response
      */
     public function sendBusinessPayment(
         string|PhoneNumber $phone,
@@ -95,6 +97,7 @@ final class B2CService
      * Send a promotion payment (e.g. betting winnings, cashback).
      *
      * @throws ValidationException
+     * @return Response
      */
     public function sendPromotion(
         string|PhoneNumber $phone,
@@ -119,6 +122,7 @@ final class B2CService
      * Low-level B2C payment. Use the specific helpers above when possible.
      *
      * @throws ValidationException
+     * @return Response
      */
     public function pay(
         string|PhoneNumber $phone,
