@@ -33,7 +33,6 @@ final class HttpClient
      * @param  array<string, mixed> $payload
      * @throws ApiException
      * @throws AuthenticationException
-     * @return Response
      */
     public function post(string $endpoint, array $payload): Response
     {
@@ -44,7 +43,6 @@ final class HttpClient
      * @param  array<string, string> $query
      * @throws ApiException
      * @throws AuthenticationException
-     * @return Response
      */
     public function get(string $endpoint, array $query = []): Response
     {
@@ -56,7 +54,6 @@ final class HttpClient
      * @param  array<string, string> $query
      * @throws ApiException
      * @throws AuthenticationException
-     * @return Response
      */
     private function send(
         string $method,
@@ -85,7 +82,7 @@ final class HttpClient
         }
 
         try {
-            $url = $this->config->baseUrl() . $endpoint;
+            $url         = $this->config->baseUrl() . $endpoint;
             $rawResponse = $this->guzzle->request($method, $url, $options);
 
             /** @var array<string, mixed> $body */
@@ -100,7 +97,7 @@ final class HttpClient
         } catch (ClientException $e) {
             $statusCode = $e->getResponse()->getStatusCode();
 
-            // Retry once on 401 — token may have just expired
+            // Retry once on 401 — token may have expired between cache read and request
             if ($statusCode === 401 && $retry) {
                 $this->tokenManager->refresh();
 
@@ -116,20 +113,20 @@ final class HttpClient
             );
 
             throw new ApiException(
-                statusCode:   $statusCode,
-                errorCode:    $errorBody['errorCode'] ?? (string) $statusCode,
+                statusCode: $statusCode,
+                errorCode: $errorBody['errorCode']    ?? (string) $statusCode,
                 errorMessage: $errorBody['errorMessage'] ?? $e->getMessage(),
             );
         } catch (GuzzleException $e) {
             throw new ApiException(
-                statusCode:   0,
-                errorCode:    'NETWORK_ERROR',
+                statusCode: 0,
+                errorCode: 'NETWORK_ERROR',
                 errorMessage: 'Network error: ' . $e->getMessage(),
             );
         } catch (\JsonException $e) {
             throw new ApiException(
-                statusCode:   0,
-                errorCode:    'PARSE_ERROR',
+                statusCode: 0,
+                errorCode: 'PARSE_ERROR',
                 errorMessage: 'Failed to parse Daraja response: ' . $e->getMessage(),
             );
         }

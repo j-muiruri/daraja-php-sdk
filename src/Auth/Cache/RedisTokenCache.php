@@ -26,9 +26,7 @@ use Daraja\Auth\AccessToken;
  */
 final class RedisTokenCache implements TokenCacheInterface
 {
-    /**
-     *@param \Illuminate\Support\Facades\Redis|\Predis\Client<string, mixed> $redis 
-     */
+    /** @param mixed $redis \Redis|\Predis\Client<string, mixed> */
     public function __construct(
         private readonly mixed  $redis,
         private readonly string $keyPrefix = 'daraja:token',
@@ -43,14 +41,27 @@ final class RedisTokenCache implements TokenCacheInterface
                 return null;
             }
 
-            /** @var array{token: string, expires_in: int} $data */
+            /** @var array{token: string} $data */
             $data = json_decode((string) $raw, true, 512, JSON_THROW_ON_ERROR);
 
-            // Reconstruct with remaining TTL (Redis handles expiry; we add a 10s buffer)
-            $ttl = max(0, $this->redis->ttl($this->key()));
-            $newTtl = $ttl + 60;
-            return $ttl > 10 ? new AccessToken($data['token'], $newTtl) : null; // +60 because token subtracts 60 internally
+            // Redis::ttl() returns int on success, or -1/-2 on no-expiry/missing key.
+            // PHPStan sees the return as int|Redis depending on stub version;
+            // is_int() narrows it safely without relying on the cast alone.
+            $rawTtl = $this->redis->ttl($this->key());
+            $ttl    = is_int($rawTtl) ? $rawTtl : 0;
+
+            // Treat as expired if fewer than 10 seconds remain
+            if ($ttl <= 10) {
+                return null;
+            }
+
+            // Reconstruct with remaining TTL.
+            // AccessToken subtracts 60s as a buffer internally, so we add it back
+            // so the reconstructed token has the correct expiresAt value.
+            return new AccessToken($data['token'], $ttl + 60);
+
         } catch (\Throwable) {
+            // Cache failure is non-fatal — caller will re-fetch from Daraja
             return null;
         }
     }
@@ -63,7 +74,7 @@ final class RedisTokenCache implements TokenCacheInterface
 
             $this->redis->setex($this->key(), $ttl, $payload);
         } catch (\Throwable) {
-            // Cache failure is non-fatal — next request will re-fetch
+            // Cache failure is non-fatal
         }
     }
 

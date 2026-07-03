@@ -4,6 +4,3 @@ parameters:
         - src
     excludePaths:
         - src/Laravel
-    ignoreErrors:
-        # Redis client type is dynamic — acceptable
-        - '#Parameter \#1 \$redis of class Daraja\\Auth\\Cache\\RedisTokenCache#'

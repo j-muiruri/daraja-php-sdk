@@ -7,21 +7,19 @@ namespace Daraja\Http;
 /**
  * Wraps a raw Daraja API response for convenient access.
  *
- * @template TData of array<string, mixed>
+ * Every Daraja API returns a flat JSON object; the data is always
+ * array<string, mixed>, so no generic type parameter is needed here.
  */
 final class Response
 {
-    /**
-     * @param TData $data
-     */
+    /** @param array<string, mixed> $data */
     public function __construct(
         private readonly array $data,
         private readonly int   $statusCode,
     ) {}
 
     /**
-     * @param  array<string, mixed> $data
-     * @return self<array<string, mixed>>
+     * @param array<string, mixed> $data
      */
     public static function fromArray(array $data, int $statusCode = 200): self
     {
@@ -38,9 +36,7 @@ final class Response
         return $this->statusCode;
     }
 
-    /**
-     * @return TData
-     */
+    /** @return array<string, mixed> */
     public function data(): array
     {
         return $this->data;
@@ -62,7 +58,8 @@ final class Response
     }
 
     /**
-     * M-Pesa API 0 = success, anything else = failure (even with HTTP 200).
+     * M-Pesa API: ResultCode/ResponseCode "0" = success.
+     * Empty string also counts as accepted (some endpoints omit the field).
      */
     public function isAccepted(): bool
     {
@@ -71,9 +68,6 @@ final class Response
         return $responseCode === '0' || $responseCode === '';
     }
 
-    /**
-     * Conversation/Originator IDs returned after accepted async requests.
-     */
     public function conversationId(): string
     {
         return $this->getString('ConversationID');
@@ -89,13 +83,13 @@ final class Response
         return $this->getString('ResponseDescription');
     }
 
-    /** STK Push-specific: CheckoutRequestID */
+    /** STK Push: CheckoutRequestID from the push response. */
     public function checkoutRequestId(): string
     {
         return $this->getString('CheckoutRequestID');
     }
 
-    /** STK Query-specific: ResultDesc */
+    /** STK Query: human-readable result description. */
     public function resultDescription(): string
     {
         return $this->getString('ResultDesc');
