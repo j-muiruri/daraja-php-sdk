@@ -1,40 +1,40 @@
 # j-muiruri/daraja-php-sdk
 
-A modern, fully typed PHP 8.2 SDK for the **Safaricom Daraja 3.0 M-Pesa API**.
+A modern, fully typed PHP 8.2+ SDK built for the Safaricom Daraja 3.0 M-Pesa API.
 
-[![Latest Version](https://img.shields.io/packagist/v/j-muiruri/daraja-php-sdk.svg)](https://packagist.org/packages/j-muiruri/daraja-php-sdk)
-[![Total Downloads](https://img.shields.io/packagist/dt/j-muiruri/daraja-php-sdk.svg)](https://packagist.org/packages/j-muiruri/daraja-php-sdk)
-[![Tests](https://github.com/j-muiruri/daraja-php-sdk/actions/workflows/tests.yml/badge.svg)](https://github.com/j-muiruri/daraja-php-sdk/actions)
-[![PHP](https://img.shields.io/badge/PHP-8.2%2B-blue)](https://www.php.net)
-[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
----
-
-## Features
-
-| API | Service | Method(s) |
-|---|---|---|
-| OAuth 2.0 | `AccessTokenManager` | Auto-managed (transparent) |
-| STK Push | `stk()` | `push()`, `pushBuyGoods()`, `query()` |
-| C2B | `c2b()` | `registerUrls()`, `simulate()` |
-| B2C | `b2c()` | `sendSalary()`, `sendBusinessPayment()`, `sendPromotion()`, `pay()` |
-| B2B | `b2b()` | `payBill()`, `buyGoods()`, `pay()` |
-| Transaction Status | `transactionStatus()` | `query()` |
-| Account Balance | `accountBalance()` | `query()` |
-| Reversal | `reversal()` | `reverse()` |
-| Dynamic QR | `qr()` | `generate()`, `extractImage()`, `saveImage()` |
+[![Latest Version](https://img.shields.io/packagist/v/j-muiruri/daraja-php-sdk.svg?style=flat-square)](https://packagist.org/packages/j-muiruri/daraja-php-sdk)
+[![Total Downloads](https://img.shields.io/packagist/dt/j-muiruri/daraja-php-sdk.svg?style=flat-square)](https://packagist.org/packages/j-muiruri/daraja-php-sdk)
+[![Tests](https://github.com/j-muiruri/daraja-php-sdk/actions/workflows/tests.yml/badge.svg?style=flat-square)](https://github.com/j-muiruri/daraja-php-sdk/actions)
+[![PHP](https://img.shields.io/badge/PHP-8.2%2B-blue?style=flat-square)](https://www.php.net)
+[![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
 
 ---
 
-## Requirements
+## Index
 
-- PHP 8.2+
-- Composer
-- `ext-openssl`, `ext-json`
-- Guzzle 7.x
+* [System Requirements](#system-requirements)
+* [Installation & Setup](#installation--setup)
+* [Initialization](#initialization)
+* [Feature Matrix](#feature-matrix)
+* [API Reference](#api-reference)
+  * [STK Push (Lipa na M-Pesa Online)](#stk-push-lipa-na-m-pesa-online)
+  * [C2B (Customer to Business)](#c2b--register-urls)
+  * [B2C (Disbursements)](#b2c--disbursements)
 
 ---
 
-## Installation
+## System Requirements
+
+* **PHP** 8.2 or higher
+* **Composer** dependency manager
+* **Extensions:** `ext-openssl`, `ext-json`
+* **HTTP Client:** Guzzle 7.x
+
+---
+
+## Installation & Setup
+
+Pull the package into your project via Composer:
 
 ```bash
 composer require j-muiruri/daraja-php-sdk
@@ -56,9 +56,9 @@ $mpesa = DarajaClient::make(
     shortcode:      $_ENV['MPESA_SHORTCODE'],
     passkey:        $_ENV['MPESA_PASSKEY'],
     environment:    Environment::Sandbox,
-    callbackUrl:    'https://yourapp.co.ke/mpesa/callback',
-    resultUrl:      'https://yourapp.co.ke/mpesa/result',
-    timeoutUrl:     'https://yourapp.co.ke/mpesa/timeout',
+    callbackUrl:    '[https://yourapp.co.ke/mpesa/callback](https://yourapp.co.ke/mpesa/callback)',
+    resultUrl:      '[https://yourapp.co.ke/mpesa/result](https://yourapp.co.ke/mpesa/result)',
+    timeoutUrl:     '[https://yourapp.co.ke/mpesa/timeout](https://yourapp.co.ke/mpesa/timeout)',
 );
 ```
 
@@ -67,6 +67,21 @@ Or read directly from environment variables:
 ```php
 $mpesa = DarajaClient::fromEnv();
 ```
+
+---
+## Feature Matrix
+
+| API Category       | Interfacing Service   | Exposed Method(s)                                                   |
+| ------------------ | --------------------- | ------------------------------------------------------------------- |
+| OAuth 2.0          | `AccessTokenManager`  | Auto-managed internally (transparent)                               |
+| STK Push           | `stk()`               | `push()`, `pushBuyGoods()`, `query()`                               |
+| C2B                | `c2b()`               | `registerUrls()`, `simulate()`                                      |
+| B2C                | `b2c()`               | `sendSalary()`, `sendBusinessPayment()`, `sendPromotion()`, `pay()` |
+| B2B                | `b2b()`               | `payBill()`, `buyGoods()`, `pay()`                                  |
+| Transaction Status | `transactionStatus()` | `query()`                                                           |
+| Account Balance    | `accountBalance()`    | `query()`                                                           |
+| Reversal           | `reversal()`          | `reverse()`                                                         |
+| Dynamic QR         | `qr()`                | `generate()`, `extractImage()`, `saveImage()`                       |
 
 ---
 
@@ -148,7 +163,10 @@ $mpesa->c2b()->simulate(
 );
 ```
 
----
+
+### ⚠️ WARNING
+
+B2C, B2B, Reversals, and Account Balance operations explicitly require you to supply an initiatorName and valid securityCredential string within your initialization configuration. Safely disburse outbound capital transfers from your operational utility wallets.
 
 ### B2C — Disbursements
 
@@ -164,7 +182,7 @@ $mpesa->b2c()->sendSalary(
     remarks: 'April Salary',
 );
 
-// Promotion / betting payout
+//Promotion/betting payout
 $mpesa->b2c()->sendPromotion(
     phone:   '0733123456',
     amount:  500,
@@ -208,7 +226,6 @@ $mpesa->b2b()->buyGoods('987654', 12000, 'Office supplies');
 ```
 
 ---
-
 ### Transaction Status
 
 Reconcile transactions when callbacks were missed.
@@ -293,7 +310,7 @@ Invalid numbers throw `Daraja\Exceptions\ValidationException`.
 
 ## Security Credentials (B2C, B2B, Reversal, Balance)
 
-These APIs need the initiator password encrypted with Safaricom's public certificate.
+These APIs require the initiator password to be encrypted with Safaricom's public certificate.
 
 **Step 1** — Download the certificate from the Daraja portal:
 - Sandbox: `https://developer.safaricom.co.ke/sites/default/files/cert/sandbox/cert.cer`
