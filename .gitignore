@@ -31,7 +31,6 @@ composer.lock
 /dist/
 
 # Testing
-/phpunit.xml
 /.phpunit.result.cache
 /coverage/
 .phpunit.cache/
