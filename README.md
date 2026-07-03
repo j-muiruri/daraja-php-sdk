@@ -1,10 +1,12 @@
 # j-muiruri/daraja-php-sdk
 
-A modern, fully-typed PHP 8.2 SDK for the **Safaricom Daraja 3.0 M-Pesa API**.
+A modern, fully typed PHP 8.2 SDK for the **Safaricom Daraja 3.0 M-Pesa API**.
 
+[![Latest Version](https://img.shields.io/packagist/v/j-muiruri/daraja-php-sdk.svg)](https://packagist.org/packages/j-muiruri/daraja-php-sdk)
+[![Total Downloads](https://img.shields.io/packagist/dt/j-muiruri/daraja-php-sdk.svg)](https://packagist.org/packages/j-muiruri/daraja-php-sdk)
+[![Tests](https://github.com/j-muiruri/daraja-php-sdk/actions/workflows/tests.yml/badge.svg)](https://github.com/j-muiruri/daraja-php-sdk/actions)
 [![PHP](https://img.shields.io/badge/PHP-8.2%2B-blue)](https://www.php.net)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
-
 ---
 
 ## Features
