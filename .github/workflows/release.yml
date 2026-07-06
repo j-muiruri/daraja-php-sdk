@@ -26,10 +26,12 @@ jobs:
           tools: composer:v2
 
       - name: Install dependencies
-        run: composer install --prefer-dist --no-interaction --no-dev --optimize-autoloader
+        run: composer install --prefer-dist --no-interaction --optimize-autoloader
 
       - name: Run CI Suite
         run: composer run ci
+      - name: Re-install production dependencies 
+        run: composer install --prefer-dist --no-interaction --no-dev --optimize-autoloader
 
       - name: Extract release notes from CHANGELOG
         id: changelog
