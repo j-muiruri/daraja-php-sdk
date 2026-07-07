@@ -14,6 +14,7 @@ A modern, fully typed PHP 8.2+ SDK built for the Safaricom Daraja 3.0 M-Pesa API
 
 * [System Requirements](#system-requirements)
 * [Installation & Setup](#installation--setup)
+* [Integration Guides](https://github.com/j-muiruri/daraja-php-sdk/tree/main/docs/integration)
 * [Initialization](#initialization)
 * [Feature Matrix](#feature-matrix)
 * [API Reference](#api-reference)

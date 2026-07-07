@@ -4,7 +4,10 @@ All notable changes to this project will be documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [1.0.1] - 2026-07-07
+
+### Added
+- Links to the PHP and Laravel integration guides in the README.
 
 ## [1.0.0] - 2025-06-30
 
