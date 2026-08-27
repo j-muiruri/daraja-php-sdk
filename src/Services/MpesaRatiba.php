@@ -67,7 +67,7 @@ final class MpesaRatiba
         string|PhoneNumber $payerPhone,
         string             $accountReference,
         Frequency          $frequency,
-        string             $transactionDesc = 'Standing Order',
+        string             $transactionDesc = 'StandingOrder',
         string             $callbackUrl = '',
     ): Response {
         return $this->create(
@@ -75,7 +75,7 @@ final class MpesaRatiba
             startDate: $startDate,
             endDate: $endDate,
             businessShortCode: $this->config->shortcode,
-            transactionType: 'Standing Order Customer Pay Bill',
+            transactionType: 'StandingOrder',
             receiverIdentifierType: IdentifierType::Shortcode,
             amount: $amount,
             payerPhone: $payerPhone,
@@ -100,7 +100,7 @@ final class MpesaRatiba
         string|PhoneNumber $payerPhone,
         string             $accountReference,
         Frequency          $frequency,
-        string             $transactionDesc = 'Standing Order',
+        string             $transactionDesc = 'StandingOrder',
         string             $callbackUrl = '',
     ): Response {
         return $this->create(
@@ -135,7 +135,7 @@ final class MpesaRatiba
         string|PhoneNumber $payerPhone,
         string             $accountReference,
         Frequency          $frequency,
-        string             $transactionDesc = 'Standing Order',
+        string             $transactionDesc = 'StandingOrder',
         string             $callbackUrl = '',
     ): Response {
         $payerPhone  = $payerPhone instanceof PhoneNumber ? $payerPhone : PhoneNumber::from((string) $payerPhone);
