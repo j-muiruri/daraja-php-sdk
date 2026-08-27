@@ -6,6 +6,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-08-27
+
 ### Added
 - **Experience-category batch**: `iotSim()` service (`IotSimManagement`) covering 13 operations
   across SIM lifecycle management (get all SIMs, lifecycle/customer-info queries, activation,
