@@ -23,7 +23,7 @@ final class SimSwapServiceTest extends DarajaTestCase
             ]],
         ]);
 
-        $service  = new SimSwap($config, $http);
+        $service  = new SimSwap($http);
         $response = $service->checkLastSwapDate('254722000000');
 
         self::assertSame('200', $response->getString('responseCode'));
@@ -42,7 +42,7 @@ final class SimSwapServiceTest extends DarajaTestCase
             ]],
         ]);
 
-        $service  = new SimSwap($config, $http);
+        $service  = new SimSwap($http);
         $response = $service->checkLastSwapDate('0722000000');
 
         self::assertSame('15-06-2025 09:12', $response->getString('lastSwapDate'));
@@ -55,7 +55,7 @@ final class SimSwapServiceTest extends DarajaTestCase
             ['status' => 200, 'body' => ['responseCode' => '200', 'lastSwapDate' => '01-01-1900 00:00']],
         ]);
 
-        $service  = new SimSwap($config, $http);
+        $service  = new SimSwap($http);
         $response = $service->checkLastSwapDate(PhoneNumber::from('0722000000'));
 
         self::assertSame('200', $response->getString('responseCode'));
@@ -67,7 +67,7 @@ final class SimSwapServiceTest extends DarajaTestCase
 
         $config  = $this->makeConfig();
         $http    = $this->makeHttpClientWithMockedToken($config, []);
-        $service = new SimSwap($config, $http);
+        $service = new SimSwap($http);
 
         $service->checkLastSwapDate('12345');
     }

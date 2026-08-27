@@ -32,7 +32,7 @@ final class IotSimManagementServiceTest extends DarajaTestCase
             ]],
         ]);
 
-        $service  = new IotSimManagement($config, $http);
+        $service  = new IotSimManagement($http);
         $response = $service->getAllSims(vpnGroup: '1-225560081663_VPN', username: 'user@safaricom.co.ke');
 
         self::assertTrue($service->isSuccessful($response));
@@ -46,7 +46,7 @@ final class IotSimManagementServiceTest extends DarajaTestCase
 
         $config  = $this->makeConfig();
         $http    = $this->makeHttpClientWithMockedToken($config, []);
-        $service = new IotSimManagement($config, $http);
+        $service = new IotSimManagement($http);
 
         $service->getAllSims(vpnGroup: '1-225560081663_VPN', username: '');
     }
@@ -61,7 +61,7 @@ final class IotSimManagementServiceTest extends DarajaTestCase
             ]],
         ]);
 
-        $service  = new IotSimManagement($config, $http);
+        $service  = new IotSimManagement($http);
         $response = $service->queryLifeCycleStatus('300000020000', '1-225560081663_VPN', 'user@safaricom.co.ke');
 
         self::assertTrue($service->isSuccessful($response));
@@ -78,7 +78,7 @@ final class IotSimManagementServiceTest extends DarajaTestCase
             ]],
         ]);
 
-        $service  = new IotSimManagement($config, $http);
+        $service  = new IotSimManagement($http);
         $response = $service->activateSim('300000443539', '1-225560081663_VPN', 'user@safaricom.co.ke');
 
         self::assertTrue($service->isSuccessful($response));
@@ -91,7 +91,7 @@ final class IotSimManagementServiceTest extends DarajaTestCase
 
         $config  = $this->makeConfig();
         $http    = $this->makeHttpClientWithMockedToken($config, []);
-        $service = new IotSimManagement($config, $http);
+        $service = new IotSimManagement($http);
 
         $service->getActivationTrends(
             vpnGroup:  '1-225560081663_VPN',
@@ -111,7 +111,7 @@ final class IotSimManagementServiceTest extends DarajaTestCase
             ]],
         ]);
 
-        $service  = new IotSimManagement($config, $http);
+        $service  = new IotSimManagement($http);
         $response = $service->renameAsset('300000038722', '1-225560081663_VPN', 'test@safaricom.co.ke', 'Tracker001');
 
         self::assertTrue($service->isSuccessful($response));
@@ -127,7 +127,7 @@ final class IotSimManagementServiceTest extends DarajaTestCase
             ]],
         ]);
 
-        $service  = new IotSimManagement($config, $http);
+        $service  = new IotSimManagement($http);
         $response = $service->suspendOrResumeSubscriber(
             msisdn:    '300000100000',
             username:  'user@safaricom.co.ke',
@@ -145,7 +145,7 @@ final class IotSimManagementServiceTest extends DarajaTestCase
 
         $config  = $this->makeConfig();
         $http    = $this->makeHttpClientWithMockedToken($config, []);
-        $service = new IotSimManagement($config, $http);
+        $service = new IotSimManagement($http);
 
         $service->searchMessages('');
     }
@@ -160,7 +160,7 @@ final class IotSimManagementServiceTest extends DarajaTestCase
             ]],
         ]);
 
-        $service  = new IotSimManagement($config, $http);
+        $service  = new IotSimManagement($http);
         $response = $service->sendSingleMessage('300001172000', 'Test', '1-47820525000_VPN');
 
         self::assertTrue($service->isSuccessful($response));
@@ -172,7 +172,7 @@ final class IotSimManagementServiceTest extends DarajaTestCase
 
         $config  = $this->makeConfig();
         $http    = $this->makeHttpClientWithMockedToken($config, []);
-        $service = new IotSimManagement($config, $http);
+        $service = new IotSimManagement($http);
 
         $service->deleteMessage(0);
     }
@@ -187,7 +187,7 @@ final class IotSimManagementServiceTest extends DarajaTestCase
             ]],
         ]);
 
-        $service  = new IotSimManagement($config, $http);
+        $service  = new IotSimManagement($http);
         $response = $service->deleteMessage(3888);
 
         self::assertTrue($service->isSuccessful($response));
@@ -202,7 +202,7 @@ final class IotSimManagementServiceTest extends DarajaTestCase
             ]],
         ]);
 
-        $service  = new IotSimManagement($config, $http);
+        $service  = new IotSimManagement($http);
         $response = $service->searchMessages('254300000109264');
 
         self::assertFalse($service->isSuccessful($response));

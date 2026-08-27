@@ -6,6 +6,15 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.1.1] - 2026-08-27
+
+### Fixed
+- Removed the unused `Config` constructor dependency from `Imsi`, `SimSwap`, and
+  `IotSimManagement` — all three take every parameter explicitly from the caller and never
+  read `$config` internally, which PHPStan correctly flagged as a dead property
+  (`Property ...::$config is never read, only written`). No public API impact: `DarajaClient`'s
+  `imsi()`, `simSwap()`, and `iotSim()` accessor methods are unchanged.
+
 ## [1.1.0] - 2026-08-27
 
 ### Added
@@ -22,8 +31,6 @@ This project adheres to [Semantic Versioning](https://semver.org/).
   Only a third-party SDK's marketing copy could be found naming these products; no concrete
   request/response schema is publicly available. Left out pending partner docs, consistent
   with the earlier decision on Mobile Number Validation / Age on Network.
-
-### Added
 - **Security-category batch**: `simSwap()` and `imsi()` services, wrapping the `Swap`
   (`POST /imsi/v2/checkATI`) and `IMSI` (`POST /imsi/v1/checkATI`) fraud/risk-check APIs.
   Both are synchronous (no callback wiring needed) and return the plain `Response` object,
@@ -35,8 +42,6 @@ This project adheres to [Semantic Versioning](https://semver.org/).
   Unlike Swap and IMSI (verified against Safaricom's own docs), no request/response schema
   for these two could be located publicly. Rather than fabricate one, these are left out
   pending partner docs or API access — see the CHANGELOG entry for follow-up.
-
-### Added
 - **B2B Express Checkout (USSD Push to Till)** — new `b2bExpressCheckout()` service on
   `DarajaClient`, wrapping `POST /v1/ussdpush/get-msisdn`. Prompts a fellow merchant to pay
   from their own till number into your paybill.

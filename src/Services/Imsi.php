@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Daraja\Services;
 
-use Daraja\Config;
 use Daraja\Exceptions\ValidationException;
 use Daraja\Http\HttpClient;
 use Daraja\Http\Response;
@@ -32,7 +31,6 @@ final class Imsi
     private const ENDPOINT = '/imsi/v1/checkATI';
 
     public function __construct(
-        private readonly Config     $config,
         private readonly HttpClient $http,
     ) {}
 

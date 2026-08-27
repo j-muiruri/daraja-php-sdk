@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Daraja\Services;
 
-use Daraja\Config;
 use Daraja\Enums\SimSubscriberOperation;
 use Daraja\Exceptions\ValidationException;
 use Daraja\Http\HttpClient;
@@ -49,7 +48,6 @@ final class IotSimManagement
     private const BASE = '/simportal/v1';
 
     public function __construct(
-        private readonly Config     $config,
         private readonly HttpClient $http,
     ) {}
 

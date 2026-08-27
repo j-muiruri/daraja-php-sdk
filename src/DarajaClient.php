@@ -241,19 +241,19 @@ final class DarajaClient
     /** SIM Swap — query last SIM swap date (commercial API, requires partner onboarding) */
     public function simSwap(): SimSwap
     {
-        return $this->simSwapSvc ??= new SimSwap($this->config, $this->httpClient);
+        return $this->simSwapSvc ??= new SimSwap($this->httpClient);
     }
 
     /** IMSI — hashed IMSI, network age, and last swap date (commercial API, requires partner onboarding) */
     public function imsi(): Imsi
     {
-        return $this->imsiSvc ??= new Imsi($this->config, $this->httpClient);
+        return $this->imsiSvc ??= new Imsi($this->httpClient);
     }
 
     /** IoT SIM Management — SIM lifecycle + messaging (requires separate IoT platform product) */
     public function iotSim(): IotSimManagement
     {
-        return $this->iotSimSvc ??= new IotSimManagement($this->config, $this->httpClient);
+        return $this->iotSimSvc ??= new IotSimManagement($this->httpClient);
     }
 
     /** Tax Remittance — remit taxes directly to KRA via M-Pesa */

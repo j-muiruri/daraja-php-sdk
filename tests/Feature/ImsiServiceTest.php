@@ -26,7 +26,7 @@ final class ImsiServiceTest extends DarajaTestCase
             ]],
         ]);
 
-        $service  = new Imsi($config, $http);
+        $service  = new Imsi($http);
         $response = $service->check('254722000000');
 
         self::assertSame('200', $response->getString('responseCode'));
@@ -41,7 +41,7 @@ final class ImsiServiceTest extends DarajaTestCase
             ['status' => 200, 'body' => ['responseCode' => '200', 'imsi' => '9233817055099406']],
         ]);
 
-        $service  = new Imsi($config, $http);
+        $service  = new Imsi($http);
         $response = $service->check(PhoneNumber::from('0722000000'));
 
         self::assertSame('9233817055099406', $response->getString('imsi'));
@@ -53,7 +53,7 @@ final class ImsiServiceTest extends DarajaTestCase
 
         $config  = $this->makeConfig();
         $http    = $this->makeHttpClientWithMockedToken($config, []);
-        $service = new Imsi($config, $http);
+        $service = new Imsi($http);
 
         $service->check('not-a-number');
     }
