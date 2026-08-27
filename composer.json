@@ -11,6 +11,8 @@
         "sdk",
         "laravel",
         "stk-push",
+        "b2b-express-checkout",
+        "ussd-push",
         "c2b",
         "b2c",
         "b2b",

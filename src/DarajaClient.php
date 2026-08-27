@@ -9,12 +9,20 @@ use Daraja\Auth\Cache\TokenCacheInterface;
 use Daraja\Enums\Environment;
 use Daraja\Http\HttpClient;
 use Daraja\Services\AccountBalance;
+use Daraja\Services\B2BExpressCheckout;
 use Daraja\Services\B2BService;
+use Daraja\Services\B2CAccountTopUp;
 use Daraja\Services\B2CService;
 use Daraja\Services\BillManager;
+use Daraja\Services\BusinessToPochi;
 use Daraja\Services\C2BService;
 use Daraja\Services\DynamicQR;
+use Daraja\Services\Imsi;
+use Daraja\Services\IotSimManagement;
+use Daraja\Services\MpesaRatiba;
+use Daraja\Services\PullTransaction;
 use Daraja\Services\Reversal;
+use Daraja\Services\SimSwap;
 use Daraja\Services\STKPush;
 use Daraja\Services\TaxRemittance;
 use Daraja\Services\TransactionStatus;
@@ -56,11 +64,19 @@ final class DarajaClient
     private ?STKPush           $stkPushService    = null;
     private ?C2BService        $c2bService        = null;
     private ?B2CService        $b2cService        = null;
+    private ?B2CAccountTopUp   $b2cAccountTopUpSvc = null;
+    private ?BusinessToPochi   $businessToPochiSvc = null;
+    private ?MpesaRatiba       $mpesaRatibaSvc     = null;
+    private ?PullTransaction   $pullTransactionSvc = null;
     private ?B2BService        $b2bService        = null;
+    private ?B2BExpressCheckout $b2bExpressCheckoutSvc = null;
     private ?TransactionStatus $transactionSvc    = null;
     private ?AccountBalance    $accountBalanceSvc = null;
     private ?Reversal          $reversalSvc       = null;
     private ?DynamicQR         $dynamicQRSvc      = null;
+    private ?SimSwap           $simSwapSvc        = null;
+    private ?Imsi              $imsiSvc           = null;
+    private ?IotSimManagement  $iotSimSvc         = null;
     private ?TaxRemittance     $taxRemittanceSvc  = null;
     private ?BillManager       $billManagerSvc    = null;
 
@@ -162,10 +178,40 @@ final class DarajaClient
         return $this->b2cService ??= new B2CService($this->config, $this->httpClient);
     }
 
+    /** B2C Account Top Up — fund a B2C shortcode's Utility account from Working account */
+    public function b2cAccountTopUp(): B2CAccountTopUp
+    {
+        return $this->b2cAccountTopUpSvc ??= new B2CAccountTopUp($this->config, $this->httpClient);
+    }
+
+    /** Business To Pochi — pay into a customer's Pochi La Biashara wallet */
+    public function businessToPochi(): BusinessToPochi
+    {
+        return $this->businessToPochiSvc ??= new BusinessToPochi($this->config, $this->httpClient);
+    }
+
+    /** M-Pesa Ratiba — recurring standing orders */
+    public function mpesaRatiba(): MpesaRatiba
+    {
+        return $this->mpesaRatibaSvc ??= new MpesaRatiba($this->config, $this->httpClient);
+    }
+
+    /** Pull Transactions — C2B reconciliation for missed callbacks */
+    public function pullTransaction(): PullTransaction
+    {
+        return $this->pullTransactionSvc ??= new PullTransaction($this->config, $this->httpClient);
+    }
+
     /** Business to Business — paybill and buy goods transfers */
     public function b2b(): B2BService
     {
         return $this->b2bService ??= new B2BService($this->config, $this->httpClient);
+    }
+
+    /** B2B Express Checkout — USSD Push to Till, merchant-to-merchant */
+    public function b2bExpressCheckout(): B2BExpressCheckout
+    {
+        return $this->b2bExpressCheckoutSvc ??= new B2BExpressCheckout($this->config, $this->httpClient);
     }
 
     /** Transaction Status — query any M-Pesa transaction by receipt number */
@@ -190,6 +236,24 @@ final class DarajaClient
     public function qr(): DynamicQR
     {
         return $this->dynamicQRSvc ??= new DynamicQR($this->config, $this->httpClient);
+    }
+
+    /** SIM Swap — query last SIM swap date (commercial API, requires partner onboarding) */
+    public function simSwap(): SimSwap
+    {
+        return $this->simSwapSvc ??= new SimSwap($this->config, $this->httpClient);
+    }
+
+    /** IMSI — hashed IMSI, network age, and last swap date (commercial API, requires partner onboarding) */
+    public function imsi(): Imsi
+    {
+        return $this->imsiSvc ??= new Imsi($this->config, $this->httpClient);
+    }
+
+    /** IoT SIM Management — SIM lifecycle + messaging (requires separate IoT platform product) */
+    public function iotSim(): IotSimManagement
+    {
+        return $this->iotSimSvc ??= new IotSimManagement($this->config, $this->httpClient);
     }
 
     /** Tax Remittance — remit taxes directly to KRA via M-Pesa */

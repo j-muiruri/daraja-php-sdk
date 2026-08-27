@@ -8,11 +8,13 @@ use Daraja\Exceptions\ValidationException;
 use Daraja\Webhooks\Contracts\Callback;
 use Daraja\Webhooks\Payloads\AbstractCallback;
 use Daraja\Webhooks\Payloads\AccountBalanceResult;
+use Daraja\Webhooks\Payloads\B2BExpressCheckoutResult;
 use Daraja\Webhooks\Payloads\B2BResult;
 use Daraja\Webhooks\Payloads\B2CResult;
 use Daraja\Webhooks\Payloads\BillManagerReconciliation;
 use Daraja\Webhooks\Payloads\C2BConfirmation;
 use Daraja\Webhooks\Payloads\C2BValidation;
+use Daraja\Webhooks\Payloads\MpesaRatibaResult;
 use Daraja\Webhooks\Payloads\ReversalResult;
 use Daraja\Webhooks\Payloads\STKCallback;
 use Daraja\Webhooks\Payloads\TransactionStatusResult;
@@ -25,6 +27,7 @@ use Daraja\Webhooks\Payloads\TransactionStatusResult;
  *  - C2B confirmation & validation
  *  - B2C result
  *  - B2B result (including Tax Remittance)
+ *  - B2B Express Checkout (USSD Push to Till) result
  *  - Account Balance result
  *  - Transaction Status result
  *  - Reversal result
@@ -57,6 +60,9 @@ final class CallbackProcessor
     /** @var list<\Closure(B2BResult): void> */
     private array $b2bHandlers = [];
 
+    /** @var list<\Closure(B2BExpressCheckoutResult): void> */
+    private array $b2bExpressCheckoutHandlers = [];
+
     /** @var list<\Closure(AccountBalanceResult): void> */
     private array $balanceHandlers = [];
 
@@ -68,6 +74,9 @@ final class CallbackProcessor
 
     /** @var list<\Closure(BillManagerReconciliation): void> */
     private array $billManagerHandlers = [];
+
+    /** @var list<\Closure(MpesaRatibaResult): void> */
+    private array $mpesaRatibaHandlers = [];
 
     // -------------------------------------------------------------------------
     // Handler registration (fluent)
@@ -108,6 +117,13 @@ final class CallbackProcessor
         return $this;
     }
 
+    /** @param \Closure(B2BExpressCheckoutResult): void $handler */
+    public function onB2BExpressCheckout(\Closure $handler): self
+    {
+        $this->b2bExpressCheckoutHandlers[] = $handler;
+        return $this;
+    }
+
     /** @param \Closure(AccountBalanceResult): void $handler */
     public function onAccountBalance(\Closure $handler): self
     {
@@ -136,6 +152,13 @@ final class CallbackProcessor
         return $this;
     }
 
+    /** @param \Closure(MpesaRatibaResult): void $handler */
+    public function onMpesaRatiba(\Closure $handler): self
+    {
+        $this->mpesaRatibaHandlers[] = $handler;
+        return $this;
+    }
+
     // -------------------------------------------------------------------------
     // Auto-detect and dispatch
     // -------------------------------------------------------------------------
@@ -155,10 +178,12 @@ final class CallbackProcessor
             $callback instanceof C2BValidation              => $this->dispatch($this->c2bValidationHandlers, $callback),
             $callback instanceof B2CResult                  => $this->dispatch($this->b2cHandlers, $callback),
             $callback instanceof B2BResult                  => $this->dispatch($this->b2bHandlers, $callback),
+            $callback instanceof B2BExpressCheckoutResult   => $this->dispatch($this->b2bExpressCheckoutHandlers, $callback),
             $callback instanceof AccountBalanceResult        => $this->dispatch($this->balanceHandlers, $callback),
             $callback instanceof TransactionStatusResult     => $this->dispatch($this->txStatusHandlers, $callback),
             $callback instanceof ReversalResult              => $this->dispatch($this->reversalHandlers, $callback),
             $callback instanceof BillManagerReconciliation   => $this->dispatch($this->billManagerHandlers, $callback),
+            $callback instanceof MpesaRatibaResult           => $this->dispatch($this->mpesaRatibaHandlers, $callback),
             default                                         => null,
         };
 
@@ -202,6 +227,16 @@ final class CallbackProcessor
         // All async result callbacks
         if (isset($data['Result'])) {
             return $this->parseResultBlock($data);
+        }
+
+        // B2B Express Checkout — flat payload, no "Result" wrapper, identified by requestId
+        if (isset($data['requestId'])) {
+            return new B2BExpressCheckoutResult($data);
+        }
+
+        // M-Pesa Ratiba — distinct responseHeader/responseBody envelope
+        if (isset($data['responseHeader']) || isset($data['ResponseHeader'])) {
+            return new MpesaRatibaResult($data);
         }
 
         throw new ValidationException(
@@ -265,6 +300,18 @@ final class CallbackProcessor
     public function parseBillManagerReconciliation(string $json): BillManagerReconciliation
     {
         return BillManagerReconciliation::fromJson($json);
+    }
+
+    /** @throws ValidationException|\JsonException */
+    public function parseB2BExpressCheckout(string $json): B2BExpressCheckoutResult
+    {
+        return B2BExpressCheckoutResult::fromJson($json);
+    }
+
+    /** @throws ValidationException|\JsonException */
+    public function parseMpesaRatiba(string $json): MpesaRatibaResult
+    {
+        return MpesaRatibaResult::fromJson($json);
     }
 
     // -------------------------------------------------------------------------

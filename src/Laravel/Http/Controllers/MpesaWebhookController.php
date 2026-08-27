@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace Daraja\Laravel\Http\Controllers;
 
 use Daraja\Laravel\Events\AccountBalanceReceived;
+use Daraja\Laravel\Events\B2BExpressCheckoutResultReceived;
 use Daraja\Laravel\Events\B2BResultReceived;
 use Daraja\Laravel\Events\B2CResultReceived;
 use Daraja\Laravel\Events\BillManagerReconciliationReceived;
 use Daraja\Laravel\Events\C2BConfirmationReceived;
 use Daraja\Laravel\Events\C2BValidationReceived;
+use Daraja\Laravel\Events\MpesaRatibaResultReceived;
 use Daraja\Laravel\Events\ReversalResultReceived;
 use Daraja\Laravel\Events\STKCallbackReceived;
 use Daraja\Laravel\Events\TransactionStatusReceived;
@@ -34,6 +36,8 @@ use Psr\Log\LoggerInterface;
  *   POST /mpesa/reversal/result      + /mpesa/reversal/timeout
  *   POST /mpesa/tax/result           + /mpesa/tax/timeout
  *   POST /mpesa/bill/reconciliation
+ *   POST /mpesa/b2b-express-checkout/callback
+ *   POST /mpesa/ratiba/callback
  *
  * Override behaviour: extend this class and rebind in the IoC container.
  *
@@ -153,6 +157,28 @@ class MpesaWebhookController extends Controller
             $cb = $this->processor->parseBillManagerReconciliation($json);
             $this->log('bill_manager_reconciliation', $cb->transactionId, true);
             event(new BillManagerReconciliationReceived($cb));
+        });
+    }
+
+    // ── B2B Express Checkout (USSD Push to Till) ──────────────────────────────
+
+    public function handleB2BExpressCheckout(Request $request): JsonResponse
+    {
+        return $this->handle($request, function (string $json): void {
+            $cb = $this->processor->parseB2BExpressCheckout($json);
+            $this->log('b2b_express_checkout', $cb->requestId, $cb->isSuccessful());
+            event(new B2BExpressCheckoutResultReceived($cb));
+        });
+    }
+
+    // ── M-Pesa Ratiba (Standing Orders) ───────────────────────────────────────
+
+    public function handleMpesaRatiba(Request $request): JsonResponse
+    {
+        return $this->handle($request, function (string $json): void {
+            $cb = $this->processor->parseMpesaRatiba($json);
+            $this->log('mpesa_ratiba', $cb->requestRefId, $cb->isSuccessful());
+            event(new MpesaRatibaResultReceived($cb));
         });
     }
 

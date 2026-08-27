@@ -137,6 +137,12 @@ final class DarajaServiceProvider extends ServiceProvider
 
                 // Bill Manager
                 $router->post('bill/reconciliation', [$controller, 'handleBillManagerReconciliation'])->name('mpesa.bill.reconciliation');
+
+                // B2B Express Checkout (USSD Push to Till)
+                $router->post('b2b-express-checkout/callback', [$controller, 'handleB2BExpressCheckout'])->name('mpesa.b2b-express-checkout.callback');
+
+                // M-Pesa Ratiba (Standing Orders)
+                $router->post('ratiba/callback', [$controller, 'handleMpesaRatiba'])->name('mpesa.ratiba.callback');
             });
     }
 

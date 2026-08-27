@@ -78,11 +78,19 @@ $mpesa = DarajaClient::fromEnv();
 | STK Push           | `stk()`               | `push()`, `pushBuyGoods()`, `query()`                               |
 | C2B                | `c2b()`               | `registerUrls()`, `simulate()`                                      |
 | B2C                | `b2c()`               | `sendSalary()`, `sendBusinessPayment()`, `sendPromotion()`, `pay()` |
+| B2C Account Top Up | `b2cAccountTopUp()`   | `topUp()`                                                           |
+| Business To Pochi  | `businessToPochi()`   | `pay()`                                                             |
 | B2B                | `b2b()`               | `payBill()`, `buyGoods()`, `pay()`                                  |
+| B2B Express Checkout | `b2bExpressCheckout()` | `push()`                                                          |
+| M-Pesa Ratiba      | `mpesaRatiba()`       | `createForPayBill()`, `createForBuyGoods()`, `create()`             |
+| Pull Transactions  | `pullTransaction()`   | `register()`, `query()`                                             |
 | Transaction Status | `transactionStatus()` | `query()`                                                           |
 | Account Balance    | `accountBalance()`    | `query()`                                                           |
 | Reversal           | `reversal()`          | `reverse()`                                                         |
 | Dynamic QR         | `qr()`                | `generate()`, `extractImage()`, `saveImage()`                       |
+| SIM Swap           | `simSwap()`           | `checkLastSwapDate()`                                               |
+| IMSI               | `imsi()`              | `check()`                                                           |
+| IoT SIM Management | `iotSim()`            | `getAllSims()`, `activateSim()`, `sendSingleMessage()`, +10 more    |
 
 ---
 
@@ -210,6 +218,106 @@ $mpesa->b2c()->sendBusinessPayment('0722123456', 1200, 'Refund - Order #112');
 ```
 
 ---
+### B2C Account Top Up
+
+Moves funds from your paybill's Working account into a B2C shortcode's Utility account, so that
+shortcode has balance available to disburse. Same underlying `/mpesa/b2b/v1/paymentrequest`
+endpoint as B2B, restricted to `CommandID: BusinessPayToBulk`.
+
+```php
+$mpesa->b2cAccountTopUp()->topUp(
+    b2cShortcode:     '600000',
+    amount:           239,
+    accountReference: '353353',
+);
+```
+
+Callback payload matches the standard B2B result shape — handle it via `onB2B()` /
+`parseB2B()`.
+
+---
+### Business To Pochi
+
+Pays a customer's "Pochi La Biashara" business wallet instead of their personal M-Pesa account.
+Amounts are constrained to 10–250,000 KES per transaction.
+
+```php
+$mpesa->businessToPochi()->pay(
+    phone:   '0705912645',
+    amount:  1500,
+    remarks: 'Stock payment',
+);
+```
+
+Callback payload matches the standard B2C result shape — handle it via `onB2C()` / `parseB2C()`.
+
+---
+### M-Pesa Ratiba — Standing Orders
+
+Sets up a recurring payment: the customer approves once via a PIN prompt, then M-Pesa
+auto-executes on your schedule with no further customer action.
+
+> ⚠️ Commercial API — sandbox testing is self-serve, but going live requires a commercial
+> agreement with Safaricom (email apisupport@safaricom.co.ke) before this is attached to your
+> shortcode.
+
+```php
+use Daraja\Enums\Frequency;
+
+$response = $mpesa->mpesaRatiba()->createForPayBill(
+    standingOrderName: 'Monthly Rent - Unit 4B',   // must be unique per customer
+    startDate:          new DateTimeImmutable('2026-09-01'),
+    endDate:             new DateTimeImmutable('2027-09-01'),
+    amount:              4500,
+    payerPhone:          '0708374149',
+    accountReference:    'UNIT-4B',
+    frequency:           Frequency::Monthly,
+);
+
+// Ratiba nests its status differently to every other Daraja response —
+// use the service's own accessors rather than $response->isAccepted():
+if ($mpesa->mpesaRatiba()->isAccepted($response)) {
+    // accepted for processing
+}
+```
+
+Handle the callback (its own `responseHeader`/`responseBody` envelope) with:
+
+```php
+$processor->onMpesaRatiba(function (MpesaRatibaResult $result) {
+    if ($result->isSuccessful()) {
+        // $result->transactionId, $result->status
+    }
+});
+```
+
+---
+### Pull Transactions
+
+Recovers C2B transactions that never reached your callback URLs — one-time `register()`, then
+`query()` per reconciliation window (max 48 hours of history).
+
+```php
+// One-time setup
+$mpesa->pullTransaction()->register(
+    shortCode:       '600000',
+    nominatedNumber: '254722000000',
+);
+
+// Reconcile a window
+$response = $mpesa->pullTransaction()->query(
+    startDate: new DateTimeImmutable('-2 days'),
+    endDate:   new DateTimeImmutable('now'),
+);
+
+$transactions = $response->get('Transaction', []);
+```
+
+> ⚠️ Safaricom's own docs are inconsistent about whether `query()` is GET or POST — see the
+> docblock on `PullTransaction::query()` for details. This SDK sends POST with a JSON body;
+> verify against your sandbox app.
+
+---
 
 ### B2B — Pay Suppliers
 
@@ -225,6 +333,45 @@ $mpesa->b2b()->payBill(
 // Pay a merchant till
 $mpesa->b2b()->buyGoods('987654', 12000, 'Office supplies');
 ```
+
+---
+### B2B Express Checkout (USSD Push to Till)
+
+Prompts a fellow merchant to pay you from their own till, via a USSD PIN prompt. Unlike other
+operator APIs, this endpoint does **not** use `initiatorName`/`securityCredential` — auth is
+handled entirely by your app's consumer key/secret.
+
+```php
+$response = $mpesa->b2bExpressCheckout()->push(
+    primaryShortCode:  '000001',        // Merchant's till (debit party)
+    receiverShortCode: '000002',        // Your paybill (credit party)
+    amount:            100,
+    paymentRef:        'INV-0042',      // Shown to the merchant in the USSD prompt
+    partnerName:        'Acme Traders', // Your org's friendly name, shown to the merchant
+    callbackUrl:        'https://yourapp.co.ke/mpesa/b2b-checkout/callback',
+);
+
+if ($response->isSuccessful()) {
+    // "USSD Initiated Successfully" — final result arrives at callbackUrl
+}
+```
+
+Handle the callback with `CallbackProcessor`:
+
+```php
+$processor->onB2BExpressCheckout(function (B2BExpressCheckoutResult $result) {
+    if ($result->isSuccessful()) {
+        // $result->transactionId, $result->amount
+    } elseif ($result->wasCancelled()) {
+        // Merchant cancelled the USSD prompt
+    }
+});
+```
+
+> ⚠️ This is a merchant-to-merchant product — the *receiver* must have a paybill able to receive
+> B2B Express Checkout payments, and the payer must have a till number. See the
+> [official docs](https://developer.safaricom.co.ke/apis/B2BExpressCheckout) for onboarding
+> requirements.
 
 ---
 ### Transaction Status
@@ -289,6 +436,85 @@ echo '<img src="data:image/png;base64,' . $base64 . '">';
 // Or save to disk
 $mpesa->qr()->saveImage($response, '/var/www/html/qr/payment.png');
 ```
+
+---
+### SIM Swap
+
+Query the last date a customer's SIM was swapped — a fraud/risk signal for banking due
+diligence. Returns a default date of `01-01-1900 00:00` if the SIM has not swapped in the
+last 3 months.
+
+> ⚠️ Commercial API — requires a signed commercial agreement with Safaricom before onboarding
+> (email apisupport@safaricom.co.ke or your account manager). Won't function on a plain
+> sandbox app without it. KES 50,000 connection fee; first 200,000 requests free, then KES 1
+> each.
+
+```php
+$response = $mpesa->simSwap()->checkLastSwapDate('254722000000');
+
+$lastSwap = $response->getString('lastSwapDate'); // e.g. "01-01-1900 00:00"
+```
+
+---
+### IMSI
+
+Returns a hashed IMSI, network registration date, and last SIM swap date for a Safaricom
+number — a fuller fraud/risk-check signal set than SIM Swap alone.
+
+> ⚠️ Commercial API — same onboarding requirements as SIM Swap above. KES 20 per call.
+
+```php
+$response = $mpesa->imsi()->check('254722000000');
+
+$imsi                   = $response->getString('imsi');
+$lastSwapDate           = $response->getString('lastSwapDate');
+$msisdnRegistrationDate = $response->getString('msisdnRegistrationDate');
+```
+
+---
+### IoT SIM Management
+
+Manages Safaricom IoT SIM cards — activation, suspension, status checks, renaming — and their
+messaging channel, via the `/simportal/*` product family.
+
+> ⚠️ Requires the separate [Safaricom IoT SIM Management](https://www.business.safaricom.co.ke/products/IoTSimManagement)
+> platform product — not unlocked by a standard M-Pesa Daraja app. Uses the same OAuth Bearer
+> token as the rest of this SDK.
+
+```php
+// Check a SIM's status
+$response = $mpesa->iotSim()->queryLifeCycleStatus(
+    msisdn:   '300000020000',
+    vpnGroup: '1-225560081663_VPN',
+    username: 'user@safaricom.co.ke',
+);
+
+// Every response uses its own header/body envelope — use these helpers
+// rather than Response::isAccepted():
+if ($mpesa->iotSim()->isSuccessful($response)) {
+    $status = $response->data()['body']['status'] ?? null;
+}
+
+// Activate a SIM
+$mpesa->iotSim()->activateSim('300000443539', '1-225560081663_VPN', 'user@safaricom.co.ke');
+
+// Suspend a subscriber
+use Daraja\Enums\SimSubscriberOperation;
+
+$mpesa->iotSim()->suspendOrResumeSubscriber(
+    msisdn:    '300000100000',
+    username:  'user@safaricom.co.ke',
+    vpnGroup:  '1-225560081663_VPN',
+    product:   '14205000',
+    operation: SimSubscriberOperation::Suspend,
+);
+
+// Send a message to a SIM
+$mpesa->iotSim()->sendSingleMessage('300001172000', 'Hello device', '1-47820525000_VPN');
+```
+
+See `IotSimManagement`'s docblock for the full endpoint list (13 operations across SIM
+lifecycle and messaging).
 
 ---
 

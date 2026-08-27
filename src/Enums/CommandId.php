@@ -20,6 +20,8 @@ enum CommandId: string
     case BusinessBuyGoods           = 'BusinessBuyGoods';
     case DisburseFundsToBusiness    = 'DisburseFundsToBusiness';
     case BusinessToBusinessTransfer = 'BusinessToBusinessTransfer';
+    case BusinessPayToBulk          = 'BusinessPayToBulk';
+    case BusinessPayToPochi         = 'BusinessPayToPochi';
 
     // Tax Remittance (B2B to KRA)
     case PayTaxToKRA            = 'PayTaxToKRA';
