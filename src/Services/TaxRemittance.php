@@ -11,6 +11,7 @@ use Daraja\Enums\IdentifierType;
 use Daraja\Exceptions\ValidationException;
 use Daraja\Http\HttpClient;
 use Daraja\Http\Response;
+use Daraja\Support\Url;
 
 /**
  * Tax Remittance Service.
@@ -117,11 +118,11 @@ final class TaxRemittance
             $errors['account_reference'] = 'PRN (Payment Registration Number) is required';
         }
 
-        if (empty($resultUrl) || !filter_var($resultUrl, FILTER_VALIDATE_URL)) {
+        if (empty($resultUrl) || !Url::isHttps($resultUrl)) {
             $errors['result_url'] = 'A valid HTTPS result URL is required';
         }
 
-        if (empty($timeoutUrl) || !filter_var($timeoutUrl, FILTER_VALIDATE_URL)) {
+        if (empty($timeoutUrl) || !Url::isHttps($timeoutUrl)) {
             $errors['timeout_url'] = 'A valid HTTPS timeout URL is required';
         }
 

@@ -8,6 +8,7 @@ use Daraja\Config;
 use Daraja\Exceptions\ValidationException;
 use Daraja\Http\HttpClient;
 use Daraja\Http\Response;
+use Daraja\Support\Url;
 use Daraja\ValueObjects\PhoneNumber;
 
 /**
@@ -115,11 +116,11 @@ final class C2BService
     {
         $errors = [];
 
-        if (empty($confirmationUrl) || !filter_var($confirmationUrl, FILTER_VALIDATE_URL)) {
+        if (empty($confirmationUrl) || !Url::isHttps($confirmationUrl)) {
             $errors['confirmation_url'] = 'A valid HTTPS confirmation URL is required';
         }
 
-        if (!empty($validationUrl) && !filter_var($validationUrl, FILTER_VALIDATE_URL)) {
+        if (!empty($validationUrl) && !Url::isHttps($validationUrl)) {
             $errors['validation_url'] = 'Validation URL must be a valid HTTPS URL';
         }
 

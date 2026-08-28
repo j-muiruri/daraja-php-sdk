@@ -8,6 +8,7 @@ use Daraja\Config;
 use Daraja\Exceptions\ValidationException;
 use Daraja\Http\HttpClient;
 use Daraja\Http\Response;
+use Daraja\Support\Url;
 
 /**
  * Pull Transactions Service.
@@ -113,7 +114,7 @@ final class PullTransaction
             $errors['nominated_number'] = 'Nominated number (organization MSISDN) is required';
         }
 
-        if (empty($callbackUrl) || !filter_var($callbackUrl, FILTER_VALIDATE_URL)) {
+        if (empty($callbackUrl) || !Url::isHttps($callbackUrl)) {
             $errors['callback_url'] = 'A valid HTTPS callback URL is required';
         }
 

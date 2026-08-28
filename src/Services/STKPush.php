@@ -8,6 +8,7 @@ use Daraja\Config;
 use Daraja\Exceptions\ValidationException;
 use Daraja\Http\HttpClient;
 use Daraja\Http\Response;
+use Daraja\Support\Url;
 use Daraja\ValueObjects\PhoneNumber;
 
 /**
@@ -183,7 +184,7 @@ final class STKPush
 
         if (empty($callbackUrl)) {
             $errors['callback_url'] = 'Callback URL is required (set in Config or pass per request)';
-        } elseif (!filter_var($callbackUrl, FILTER_VALIDATE_URL)) {
+        } elseif (!Url::isHttps($callbackUrl)) {
             $errors['callback_url'] = 'Callback URL must be a valid HTTPS URL';
         }
 
