@@ -8,6 +8,7 @@ use Daraja\Config;
 use Daraja\Exceptions\ValidationException;
 use Daraja\Http\HttpClient;
 use Daraja\Http\Response;
+use Daraja\Support\Url;
 use Daraja\ValueObjects\Invoice;
 use Daraja\ValueObjects\PhoneNumber;
 
@@ -178,7 +179,7 @@ final class BillManager
             $errors['email'] = 'A valid email address is required';
         }
 
-        if (empty($callbackUrl) || !filter_var($callbackUrl, FILTER_VALIDATE_URL)) {
+        if (empty($callbackUrl) || !Url::isHttps($callbackUrl)) {
             $errors['callback_url'] = 'A valid HTTPS callback URL is required';
         }
 

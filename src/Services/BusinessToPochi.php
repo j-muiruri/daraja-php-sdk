@@ -10,6 +10,7 @@ use Daraja\Enums\CommandId;
 use Daraja\Exceptions\ValidationException;
 use Daraja\Http\HttpClient;
 use Daraja\Http\Response;
+use Daraja\Support\Url;
 use Daraja\ValueObjects\PhoneNumber;
 
 /**
@@ -131,11 +132,11 @@ final class BusinessToPochi
             $errors['remarks'] = 'Remarks must be at least 2 characters';
         }
 
-        if (empty($resultUrl) || !filter_var($resultUrl, FILTER_VALIDATE_URL)) {
+        if (empty($resultUrl) || !Url::isHttps($resultUrl)) {
             $errors['result_url'] = 'A valid HTTPS result URL is required';
         }
 
-        if (empty($timeoutUrl) || !filter_var($timeoutUrl, FILTER_VALIDATE_URL)) {
+        if (empty($timeoutUrl) || !Url::isHttps($timeoutUrl)) {
             $errors['timeout_url'] = 'A valid HTTPS timeout URL is required';
         }
 

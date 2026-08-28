@@ -113,6 +113,23 @@ final class STKPushTest extends DarajaTestCase
         );
     }
 
+    public function test_push_rejects_non_https_callback_url(): void
+    {
+        $this->expectException(ValidationException::class);
+        $this->expectExceptionMessageMatches('/HTTPS/');
+
+        $config = $this->makeConfig();
+        $http   = $this->makeHttpClientWithMockedToken($config, []);
+        $stk    = new STKPush($config, $http);
+
+        $stk->push(
+            phone:            '0712345678',
+            amount:           100,
+            accountReference: 'INV-001',
+            callbackUrl:      'http://example.com/callback',
+        );
+    }
+
     public function test_push_truncates_account_reference_to_12_chars(): void
     {
         // This just verifies no exception is thrown for long references

@@ -11,11 +11,12 @@ use Daraja\Exceptions\ValidationException;
  *
  * Accepted input formats:
  *   - 0712345678
+ *   - 0112345678
  *   - +254712345678
  *   - 254712345678
  *   - 712345678
  *
- * Canonical output: 2547XXXXXXXX (12 digits, no + prefix)
+ * Canonical output: 2547XXXXXXXX or 2541XXXXXXXX (12 digits, no + prefix)
  */
 final class PhoneNumber
 {
@@ -40,18 +41,18 @@ final class PhoneNumber
             $phone = substr($phone, 1);
         }
 
-        // 07XXXXXXXX → 2547XXXXXXXX
-        if (str_starts_with($phone, '0') && strlen($phone) === 10) {
+        // 07XXXXXXXX / 01XXXXXXXX -> 2547XXXXXXXX / 2541XXXXXXXX
+        if (preg_match('/^0[17]\d{8}$/', $phone) === 1) {
             $phone = '254' . substr($phone, 1);
         }
 
-        // 7XXXXXXXX → 2547XXXXXXXX
-        if (str_starts_with($phone, '7') && strlen($phone) === 9) {
+        // 7XXXXXXXX / 1XXXXXXXX -> 2547XXXXXXXX / 2541XXXXXXXX
+        if (preg_match('/^[17]\d{8}$/', $phone) === 1) {
             $phone = '254' . $phone;
         }
 
-        // Final validation: must be 254 7XX XXX XXX (12 digits)
-        if (!preg_match('/^2547\d{8}$/', $phone)) {
+        // Final validation: must be 254 7XX XXX XXX or 254 1XX XXX XXX
+        if (!preg_match('/^254[17]\d{8}$/', $phone)) {
             throw new ValidationException(
                 ['phone' => "Invalid Kenyan phone number: '{$phone}'"],
             );

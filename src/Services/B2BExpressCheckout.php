@@ -8,6 +8,7 @@ use Daraja\Config;
 use Daraja\Exceptions\ValidationException;
 use Daraja\Http\HttpClient;
 use Daraja\Http\Response;
+use Daraja\Support\Url;
 
 /**
  * B2B Express Checkout (USSD Push to Till) Service.
@@ -118,7 +119,7 @@ final class B2BExpressCheckout
             $errors['partner_name'] = 'partnerName is required';
         }
 
-        if (empty($callbackUrl) || !filter_var($callbackUrl, FILTER_VALIDATE_URL)) {
+        if (empty($callbackUrl) || !Url::isHttps($callbackUrl)) {
             $errors['callback_url'] = 'A valid HTTPS callback URL is required';
         }
 

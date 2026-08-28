@@ -10,6 +10,7 @@ use Daraja\Enums\IdentifierType;
 use Daraja\Exceptions\ValidationException;
 use Daraja\Http\HttpClient;
 use Daraja\Http\Response;
+use Daraja\Support\Url;
 use Daraja\ValueObjects\PhoneNumber;
 
 /**
@@ -232,7 +233,7 @@ final class MpesaRatiba
             $errors['transaction_desc'] = 'Transaction description must not exceed 13 characters';
         }
 
-        if (empty($callbackUrl) || !filter_var($callbackUrl, FILTER_VALIDATE_URL)) {
+        if (empty($callbackUrl) || !Url::isHttps($callbackUrl)) {
             $errors['callback_url'] = 'A valid HTTPS callback URL is required';
         }
 

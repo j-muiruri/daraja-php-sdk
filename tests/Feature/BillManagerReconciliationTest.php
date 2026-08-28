@@ -38,6 +38,11 @@ final class BillManagerReconciliationTest extends DarajaTestCase
         ];
     }
 
+    public function test_payload_class_is_psr4_autoloadable(): void
+    {
+        self::assertTrue(class_exists(BillManagerReconciliation::class));
+    }
+
     public function test_parses_bill_manager_reconciliation(): void
     {
         $cb = BillManagerReconciliation::fromArray($this->payload());

@@ -59,13 +59,19 @@ final class Response
 
     /**
      * M-Pesa API: ResultCode/ResponseCode "0" = success.
-     * Empty string also counts as accepted (some endpoints omit the field).
+     * Dynamic QR uses "00" for accepted responses.
      */
     public function isAccepted(): bool
     {
-        $responseCode = $this->getString('ResponseCode');
+        $responseCode = $this->get('ResponseCode');
 
-        return $responseCode === '0' || $responseCode === '';
+        if ($responseCode !== null) {
+            return in_array((string) $responseCode, ['0', '00'], true);
+        }
+
+        $resultCode = $this->get('ResultCode');
+
+        return $resultCode !== null && (string) $resultCode === '0';
     }
 
     public function conversationId(): string

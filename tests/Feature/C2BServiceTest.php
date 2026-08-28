@@ -57,6 +57,18 @@ final class C2BServiceTest extends DarajaTestCase
         $c2b->registerUrls(confirmationUrl: 'not-a-url');
     }
 
+    public function test_register_urls_rejects_non_https_confirmation_url(): void
+    {
+        $this->expectException(ValidationException::class);
+        $this->expectExceptionMessageMatches('/HTTPS/');
+
+        $config = $this->makeConfig();
+        $http   = $this->makeHttpClientWithMockedToken($config, []);
+        $c2b    = new C2BService($config, $http);
+
+        $c2b->registerUrls(confirmationUrl: 'http://example.com/confirm');
+    }
+
     public function test_register_urls_throws_on_invalid_response_type(): void
     {
         $this->expectException(ValidationException::class);

@@ -9,8 +9,8 @@ use Daraja\Config;
 use Daraja\Exceptions\ApiException;
 use Daraja\Exceptions\AuthenticationException;
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Exception\RequestException;
 
 /**
  * Central HTTP client for all Daraja API calls.
@@ -94,8 +94,18 @@ final class HttpClient
             );
 
             return Response::fromArray($body, $rawResponse->getStatusCode());
-        } catch (ClientException $e) {
-            $statusCode = $e->getResponse()->getStatusCode();
+        } catch (RequestException $e) {
+            $response = $e->getResponse();
+
+            if ($response === null) {
+                throw new ApiException(
+                    statusCode: 0,
+                    errorCode: 'NETWORK_ERROR',
+                    errorMessage: 'Network error: ' . $e->getMessage(),
+                );
+            }
+
+            $statusCode = $response->getStatusCode();
 
             // Retry once on 401 — token may have expired between cache read and request
             if ($statusCode === 401 && $retry) {
@@ -104,13 +114,7 @@ final class HttpClient
                 return $this->send($method, $endpoint, $payload, $query, false);
             }
 
-            /** @var array<string, string> $errorBody */
-            $errorBody = json_decode(
-                (string) $e->getResponse()->getBody(),
-                true,
-                512,
-                JSON_THROW_ON_ERROR
-            );
+            $errorBody = $this->decodeErrorBody((string) $response->getBody());
 
             throw new ApiException(
                 statusCode: $statusCode,
@@ -129,6 +133,28 @@ final class HttpClient
                 errorCode: 'PARSE_ERROR',
                 errorMessage: 'Failed to parse Daraja response: ' . $e->getMessage(),
             );
+        }
+    }
+
+    /** @return array<string, string> */
+    private function decodeErrorBody(string $body): array
+    {
+        if ($body === '') {
+            return [];
+        }
+
+        try {
+            /** @var array<string, mixed> $decoded */
+            $decoded = json_decode($body, true, 512, JSON_THROW_ON_ERROR);
+
+            return array_map(
+                static fn(mixed $value): string => is_scalar($value)
+                    ? (string) $value
+                    : json_encode($value, JSON_THROW_ON_ERROR),
+                $decoded
+            );
+        } catch (\JsonException) {
+            return [];
         }
     }
 }
