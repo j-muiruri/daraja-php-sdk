@@ -23,12 +23,11 @@ final class CheckBalance extends Command
 
     protected $description = 'Query the M-Pesa account balance. Result is delivered to your Result URL.';
 
-    public function __construct(private readonly DarajaClient $client)
-    {
-        parent::__construct();
-    }
-
-    public function handle(): int
+    /**
+     * The client is resolved here, not in the constructor: Laravel builds every console command at
+     * boot (package:discover, composer install), and building DarajaClient without credentials throws.
+     */
+    public function handle(DarajaClient $client): int
     {
         $typeStr = strtolower((string) ($this->option('type') ?: 'shortcode'));
 
@@ -45,7 +44,7 @@ final class CheckBalance extends Command
         $this->newLine();
 
         try {
-            $response = $this->client->accountBalance()->query(
+            $response = $client->accountBalance()->query(
                 identifierType: $identifierType,
                 remarks:        'CLI balance check',
             );

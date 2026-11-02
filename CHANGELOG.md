@@ -18,6 +18,9 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - B2B payments no longer truncate `AccountReference` to 12 characters. The reference is often a
   bank account number, and truncation could credit the wrong account. Longer references now throw
   `ValidationException`. The limit is `B2BService::MAX_ACCOUNT_REFERENCE`.
+- `mpesa:check-balance` and `mpesa:register-urls` resolve `DarajaClient` in `handle()` instead of
+  the constructor. Laravel builds every command at console boot, so an app without M-Pesa
+  credentials (fresh install, CI) failed `composer install` at `package:discover`.
 
 ## [1.1.1] - 2026-08-27
 

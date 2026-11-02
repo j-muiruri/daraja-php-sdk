@@ -137,7 +137,6 @@ final class HttpClient
         }
     }
 
-    /** @return array<string, string> */
     /**
      * Guzzle 7 puts getResponse() on RequestException. Guzzle 8 moved it to ResponseException,
      * so a bare RequestException (no HTTP response) has no such method there.
@@ -147,6 +146,7 @@ final class HttpClient
         return method_exists($e, 'getResponse') ? $e->getResponse() : null;
     }
 
+    /** @return array<string, string> */
     private function decodeErrorBody(string $body): array
     {
         if ($body === '') {
