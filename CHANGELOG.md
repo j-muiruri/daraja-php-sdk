@@ -6,6 +6,19 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+- `DarajaClient::make()`, `fromConfig()` and the constructor accept an optional Guzzle client,
+  so callers can add proxy or retry middleware and tests can use a `MockHandler`.
+- Guzzle 8 support (`guzzlehttp/guzzle: ^7.8 || ^8.0`), with a CI job that runs the suite on it.
+
+### Fixed
+- `HttpClient` no longer calls `getResponse()` on a bare `RequestException`. Guzzle 8 moved that
+  method to `ResponseException`, so a transfer error without a response caused a fatal error.
+  It is now reported as `ApiException` with `NETWORK_ERROR`, as on Guzzle 7.
+- B2B payments no longer truncate `AccountReference` to 12 characters. The reference is often a
+  bank account number, and truncation could credit the wrong account. Longer references now throw
+  `ValidationException`. The limit is `B2BService::MAX_ACCOUNT_REFERENCE`.
+
 ## [1.1.1] - 2026-08-27
 
 ### Fixed

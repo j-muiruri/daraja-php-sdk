@@ -103,4 +103,17 @@ final class DarajaClientTest extends DarajaTestCase
             passkey:        'passkey',
         );
     }
+
+    public function test_accepts_an_injected_guzzle_client(): void
+    {
+        $guzzle = $this->mockGuzzle([
+            ['status' => 200, 'body' => ['access_token' => 'injected_token', 'expires_in' => 3600]],
+            ['status' => 200, 'body' => $this->stkPushAcceptedBody()],
+        ]);
+        $client = \Daraja\DarajaClient::fromConfig($this->makeConfig(), null, $guzzle);
+
+        $response = $client->stk()->push('254712345678', 10, 'ORDER1', 'Test');
+
+        self::assertSame('ws_CO_191220191020363925', $response->checkoutRequestId());
+    }
 }
