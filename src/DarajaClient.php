@@ -80,11 +80,16 @@ final class DarajaClient
     private ?TaxRemittance     $taxRemittanceSvc  = null;
     private ?BillManager       $billManagerSvc    = null;
 
+    /**
+     * @param GuzzleClient|null $guzzle Optional pre-configured Guzzle client, for example one with a
+     *                                  MockHandler in tests, or with proxy and retry middleware.
+     */
     public function __construct(
         private readonly Config          $config,
         ?TokenCacheInterface             $tokenCache = null,
+        ?GuzzleClient                    $guzzle = null,
     ) {
-        $guzzle             = new GuzzleClient(['timeout' => $config->timeout]);
+        $guzzle           ??= new GuzzleClient(['timeout' => $config->timeout]);
         $this->tokenManager = new AccessTokenManager($config, $guzzle, $tokenCache);
         $this->httpClient   = new HttpClient($config, $this->tokenManager, $guzzle);
     }
@@ -106,6 +111,7 @@ final class DarajaClient
         string               $timeoutUrl = '',
         int                  $timeout = 30,
         ?TokenCacheInterface $tokenCache = null,
+        ?GuzzleClient        $guzzle = null,
     ): self {
         return new self(
             config: Config::make(
@@ -122,12 +128,13 @@ final class DarajaClient
                 timeout:            $timeout,
             ),
             tokenCache: $tokenCache,
+            guzzle: $guzzle,
         );
     }
 
-    public static function fromConfig(Config $config, ?TokenCacheInterface $tokenCache = null): self
+    public static function fromConfig(Config $config, ?TokenCacheInterface $tokenCache = null, ?GuzzleClient $guzzle = null): self
     {
-        return new self($config, $tokenCache);
+        return new self($config, $tokenCache, $guzzle);
     }
 
     /**

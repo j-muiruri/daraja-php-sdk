@@ -25,12 +25,11 @@ final class RegisterC2BUrls extends Command
 
     protected $description = 'Register M-Pesa C2B Validation and Confirmation URLs with Daraja.';
 
-    public function __construct(private readonly DarajaClient $client)
-    {
-        parent::__construct();
-    }
-
-    public function handle(): int
+    /**
+     * The client is resolved here, not in the constructor: Laravel builds every console command at
+     * boot (package:discover, composer install), and building DarajaClient without credentials throws.
+     */
+    public function handle(DarajaClient $client): int
     {
         $confirmationUrl = (string) ($this->option('confirmation') ?: config('daraja.callback_url'));
         $validationUrl   = (string) ($this->option('validation')   ?: $confirmationUrl);
@@ -50,7 +49,7 @@ final class RegisterC2BUrls extends Command
         $this->newLine();
 
         try {
-            $response = $this->client->c2b()->registerUrls(
+            $response = $client->c2b()->registerUrls(
                 confirmationUrl: $confirmationUrl,
                 validationUrl:   $validationUrl,
                 responseType:    $responseType,

@@ -11,6 +11,7 @@ use Daraja\Exceptions\AuthenticationException;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
+use Psr\Http\Message\ResponseInterface;
 
 /**
  * Central HTTP client for all Daraja API calls.
@@ -95,7 +96,7 @@ final class HttpClient
 
             return Response::fromArray($body, $rawResponse->getStatusCode());
         } catch (RequestException $e) {
-            $response = $e->getResponse();
+            $response = self::responseOf($e);
 
             if ($response === null) {
                 throw new ApiException(
@@ -134,6 +135,15 @@ final class HttpClient
                 errorMessage: 'Failed to parse Daraja response: ' . $e->getMessage(),
             );
         }
+    }
+
+    /**
+     * Guzzle 7 puts getResponse() on RequestException. Guzzle 8 moved it to ResponseException,
+     * so a bare RequestException (no HTTP response) has no such method there.
+     */
+    private static function responseOf(RequestException $e): ?ResponseInterface
+    {
+        return method_exists($e, 'getResponse') ? $e->getResponse() : null;
     }
 
     /** @return array<string, string> */

@@ -36,6 +36,9 @@ final class B2BService
 
     private const ENDPOINT = '/mpesa/b2b/v1/paymentrequest';
 
+    /** Longest AccountReference this SDK sends unchanged. */
+    public const MAX_ACCOUNT_REFERENCE = 12;
+
     public function __construct(
         private readonly Config     $config,
         private readonly HttpClient $http,
@@ -120,6 +123,7 @@ final class B2BService
 
         $this->validateOperatorConfig();
         $this->validatePayParams($amount, $receiverShortcode, $resultUrl, $timeoutUrl);
+        $this->validateAccountReference($accountReference);
 
         return $this->http->post(self::ENDPOINT, [
             'Initiator'              => $this->config->initiatorName,
@@ -130,7 +134,7 @@ final class B2BService
             'Amount'                 => $amount,
             'PartyA'                 => $this->config->shortcode,
             'PartyB'                 => $receiverShortcode,
-            'AccountReference'       => substr($accountReference, 0, 12),
+            'AccountReference'       => $accountReference,
             'Remarks'                => substr($remarks, 0, 100),
             'QueueTimeOutURL'        => $timeoutUrl,
             'ResultURL'              => $resultUrl,
@@ -156,6 +160,19 @@ final class B2BService
     }
 
     /** @throws ValidationException */
+    /**
+     * The reference is often a bank or utility account number. Truncating it silently would credit
+     * the wrong account, so an over-long reference is rejected instead.
+     */
+    private function validateAccountReference(string $accountReference): void
+    {
+        if (strlen($accountReference) > self::MAX_ACCOUNT_REFERENCE) {
+            throw new ValidationException([
+                'account_reference' => sprintf('Account reference must be at most %d characters', self::MAX_ACCOUNT_REFERENCE),
+            ]);
+        }
+    }
+
     private function validatePayParams(
         int    $amount,
         string $receiverShortcode,

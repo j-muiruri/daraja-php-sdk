@@ -51,6 +51,33 @@ final class B2BServiceTest extends DarajaTestCase
         self::assertTrue($response->isAccepted());
     }
 
+    public function test_account_reference_is_sent_unchanged_up_to_the_limit(): void
+    {
+        $config  = $this->makeConfig();
+        $history = [];
+        $stack   = \GuzzleHttp\HandlerStack::create(new \GuzzleHttp\Handler\MockHandler([
+            new \GuzzleHttp\Psr7\Response(200, [], json_encode($this->asyncAcceptedBody(), JSON_THROW_ON_ERROR)),
+        ]));
+        $stack->push(\GuzzleHttp\Middleware::history($history));
+        $tokenMgr = $this->createMock(\Daraja\Auth\AccessTokenManager::class);
+        $tokenMgr->method('get')->willReturn(new \Daraja\Auth\AccessToken('t', 3600));
+        $http = new \Daraja\Http\HttpClient($config, $tokenMgr, new \GuzzleHttp\Client(['handler' => $stack]));
+
+        (new B2BService($config, $http))->payBill('247247', 500, '012345678901');
+
+        $sent = json_decode((string) $history[0]['request']->getBody(), true, 512, JSON_THROW_ON_ERROR);
+        self::assertSame('012345678901', $sent['AccountReference']);
+    }
+
+    public function test_over_long_account_reference_is_rejected_not_truncated(): void
+    {
+        $this->expectException(ValidationException::class);
+
+        $config = $this->makeConfig();
+        $http   = $this->makeHttpClientWithMockedToken($config, []);
+        (new B2BService($config, $http))->payBill('247247', 500, '0123456789012');
+    }
+
     public function test_b2b_throws_if_receiver_shortcode_empty(): void
     {
         $this->expectException(ValidationException::class);

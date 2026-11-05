@@ -62,3 +62,30 @@ jobs:
         with:
           file: coverage.xml
           fail_ci_if_error: false
+
+  guzzle-8:
+    name: Guzzle 8 (PHP 8.4)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          extensions: openssl, json, mbstring
+          coverage: none
+          tools: composer:v2
+
+      # laravel/framework ^12 (dev only) pins Guzzle 7, so drop it to resolve Guzzle 8.
+      # The core test suite has no Laravel dependency.
+      - name: Install with Guzzle 8
+        run: |
+          composer remove --dev laravel/framework --no-update --no-interaction
+          composer require guzzlehttp/guzzle:^8.0 --no-update --no-interaction
+          composer update --prefer-dist --no-interaction --no-progress
+
+      - name: Run tests
+        run: vendor/bin/phpunit tests
+
